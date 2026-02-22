@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conviction Trading Platform</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1 class="logo">Conviction Platform</h1>
+            </div>
+            <div class="header-right">
+                <button class="btn" id="refreshBtn"><span class="icon-refresh"></span> Refresh</button>
+                <span class="last-updated" id="lastUpdated">Last updated: --:--</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tier="tier1">
+                <span class="tab-label">Tier 1</span>
+                <span class="tab-count">106</span>
+            </button>
+            <button class="tab-btn" data-tier="tier2">
+                <span class="tab-label">Tier 2</span>
+                <span class="tab-count">26</span>
+            </button>
+            <button class="tab-btn" data-tier="tier3">
+                <span class="tab-label">Tier 3</span>
+                <span class="tab-count">18</span>
+            </button>
+            <button class="tab-btn" data-tier="activity">
+                <span class="tab-label">Activity</span>
+                <span class="tab-count" id="activityCount">0</span>
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-cards" id="statsCards">
+            <div class="stat-card">
+                <div class="stat-label">High Conviction</div>
+                <div class="stat-value" id="highConvictionCount">0</div>
+                <div class="stat-sublabel">(score > 65)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Conviction</div>
+                <div class="stat-value" id="avgConvictionScore">--</div>
+                <div class="stat-sublabel">current tier</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Bullish</div>
+                <div class="stat-value" id="bullishCount">0</div>
+                <div class="stat-sublabel">trending up</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Bearish</div>
+                <div class="stat-value" id="bearishCount">0</div>
+                <div class="stat-sublabel">trending down</div>
+            </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="search-filter-bar">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search symbol...">
+                <button class="btn-search-clear" id="searchClear"><span class="icon-close"></span></button>
+            </div>
+            <div class="filter-buttons">
+                <button class="btn" id="filterAdvancedBtn"><span class="icon-filter"></span> Advanced</button>
+            </div>
+        </div>
+
+        <!-- Main Table Section -->
+        <div class="table-container" id="tableContainer">
+            <table class="stock-table" id="stockTable">
+                <thead>
+                    <tr>
+                        <th class="col-symbol">Symbol</th>
+                        <th class="col-conviction">Conviction</th>
+                        <th class="col-level">Level</th>
+                        <th class="col-val">Val</th>
+                        <th class="col-growth">Growth</th>
+                        <th class="col-sent">Sent</th>
+                        <th class="col-trend">Trend</th>
+                        <th class="col-change">Δ Change</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+            <div class="loading" id="loadingSpinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading stocks...</p>
+            </div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <p>No stocks found</p>
+            </div>
+            <div class="activity-feed" id="activityFeed" style="display: none;">
+                <div class="activity-list" id="activityList"></div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+            <button class="btn" id="loadMoreBtn">Load More (50)</button>
+            <span class="pagination-info" id="paginationInfo">
+                Showing <span id="showingCount">0</span> of <span id="totalCount">0</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal" id="detailModal">
+        <div class="modal-overlay" id="detailModalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailSymbol">SYMBOL</h2>
+                <button class="btn-close" id="detailModalClose"><span class="icon-close"></span></button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="modal-tabs">
+                <button class="modal-tab-btn active" data-tab="overview">Overview</button>
+                <button class="modal-tab-btn" data-tab="financials">Financials</button>
+                <button class="modal-tab-btn" data-tab="technical">Technical</button>
+                <button class="modal-tab-btn" data-tab="catalysts">Catalysts</button>
+                <button class="modal-tab-btn" data-tab="news">News</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Overview Tab -->
+                <div class="modal-tab-content active" id="tabOverview">
+                    <div class="detail-header">
+                        <div class="price-section">
+                            <div class="current-price" id="detailPrice">$0.00</div>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h3>Conviction Breakdown</h3>
+                        <div class="scorecard-grid">
+                            <div class="score-item">
+                                <div class="score-label">Sentiment</div>
+                                <div class="score-value" id="detailSentiment">--</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">Valuation</div>
+                                <div class="score-value" id="detailValuation">--</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">Growth</div>
+                                <div class="score-value" id="detailGrowth">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h3>Investment Thesis</h3>
+                        <div class="thesis-box">
+                            <p id="detailThesis">--</p>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h3>Key Risks</h3>
+                        <div class="risks-box">
+                            <p id="detailRisks">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financials Tab -->
+                <div class="modal-tab-content" id="tabFinancials">
+                    <div id="financialPanel">Loading financial metrics...</div>
+                </div>
+
+                <!-- Technical Tab -->
+                <div class="modal-tab-content" id="tabTechnical">
+                    <div id="technicalPanel">Loading technical analysis...</div>
+                </div>
+
+                <!-- Catalysts Tab -->
+                <div class="modal-tab-content" id="tabCatalysts">
+                    <div id="catalystPanel">Loading catalysts...</div>
+                </div>
+
+                <!-- News Tab -->
+                <div class="modal-tab-content" id="tabNews">
+                    <div id="newsPanel">Loading news...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/components/StockList.js"></script>
+    <script src="/static/js/components/DetailModal.js"></script>
+    <script src="/static/js/components/ActivityFeed.js"></script>
+    <script src="/static/js/components/NewsPanel.js"></script>
+    <script src="/static/js/components/CatalystTimeline.js"></script>
+    <script src="/static/js/components/FinancialMetricsGrid.js"></script>
+    <script src="/static/js/components/TechnicalChart.js"></script>
+    <script src="/static/js/services/polling.js"></script>
+    <script src="/static/js/utils/sparkline.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
