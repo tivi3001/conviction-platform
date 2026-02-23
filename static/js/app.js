@@ -32,12 +32,7 @@ class ConvictionApp {
     async initializeApp() {
         console.log('🚀 Initializing Conviction Trading Platform...');
         try {
-            const health = await api.healthCheck();
-            if (health.status !== 'healthy') {
-                this.showError('Backend unavailable');
-                return;
-            }
-
+            // Just load tier info first
             const tiersResponse = await api.getTiers();
             if (tiersResponse.status === 'success') {
                 document.querySelector('#tab-tier1 .tab-count').textContent = tiersResponse.tiers['1'].count;
@@ -45,11 +40,12 @@ class ConvictionApp {
                 document.querySelector('#tab-tier3 .tab-count').textContent = tiersResponse.tiers['3'].count;
             }
 
+            // Load first tier
             await this.switchTier(1);
             console.log('✅ Platform initialized');
         } catch (error) {
             console.error('Initialization error:', error);
-            this.showError('Failed to initialize');
+            this.showError('Backend is initializing... please refresh in a moment');
         }
     }
 
@@ -71,7 +67,7 @@ class ConvictionApp {
             }
         } catch (error) {
             console.error('Error switching tier:', error);
-            this.showError('Error loading stocks');
+            this.showError('Error loading stocks - ' + error.message);
         } finally {
             this.showLoading(false);
         }
