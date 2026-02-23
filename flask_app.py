@@ -113,6 +113,9 @@ def health_check():
     return jsonify({'status': 'healthy', 'app': 'Conviction Trading Platform'})
 
 if __name__ == '__main__':
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
     print("\n" + "="*70)
     print("🚀 CONVICTION TRADING PLATFORM - FLASK WEB APPLICATION")
     print("="*70)
@@ -122,4 +125,4 @@ if __name__ == '__main__':
     print("   URL: http://localhost:5000")
     print("   Press Ctrl+C to stop")
     print("="*70 + "\n")
-    app.run(debug=True, port=5000, host='127.0.0.1')
+    app.run(debug=debug, port=port, host='0.0.0.0')
